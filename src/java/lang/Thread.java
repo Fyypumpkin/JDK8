@@ -137,8 +137,8 @@ import sun.security.util.SecurityConstants;
  * @see     #stop()
  * @since   JDK1.0
  */
-public
-class Thread implements Runnable {
+//todo Thread 类也是实现了 Runnable 接口
+public class Thread implements Runnable {
     /* Make sure registerNatives is the first thing <clinit> does. */
     private static native void registerNatives();
     static {
@@ -278,12 +278,14 @@ class Thread implements Runnable {
      * bugs due to race conditions. It may also be useful when designing
      * concurrency control constructs such as the ones in the
      * {@link java.util.concurrent.locks} package.
+     * todo 让线程重回就绪状态 （Runnable），让同优先级的其他线程有机会执行
      */
     public static native void yield();
 
     /**
      * Causes the currently executing thread to sleep (temporarily cease
-     * execution) for the specified number of milliseconds, subject to
+     * execution) for the specified number of milliseconds, subject toslee
+     * todo sleep 不会释放锁
      * the precision and accuracy of system timers and schedulers. The thread
      * does not lose ownership of any monitors.
      *
@@ -1231,6 +1233,7 @@ class Thread implements Runnable {
      *          <i>interrupted status</i> of the current thread is
      *          cleared when this exception is thrown.
      */
+    // todo Thread join 通过 wait 方法实现，锁住了类
     public final synchronized void join(long millis)
     throws InterruptedException {
         long base = System.currentTimeMillis();
@@ -1242,6 +1245,7 @@ class Thread implements Runnable {
 
         if (millis == 0) {
             while (isAlive()) {
+                // todo 调用 调用方的 wait 方法，等待当前线程执行完毕，notifyAll 会在 join 线程退出后，通过 cpp 代码执行
                 wait(0);
             }
         } else {
@@ -1314,6 +1318,25 @@ class Thread implements Runnable {
      *          if any thread has interrupted the current thread. The
      *          <i>interrupted status</i> of the current thread is
      *          cleared when this exception is thrown.
+     *
+     *todo join 方法通过 Object 的 wait 方法实现，那么什么时候 notify 呢？实际上 jvm 做了一个收尾工作
+     * static void ensure_join(JavaThread* thread) {
+     *     Handle threadObj(thread, thread->threadObj());
+     *
+     *     ObjectLocker lock(threadObj, thread);
+     *
+     *     thread->clear_pending_exception();
+     *
+     *     java_lang_Thread::set_thread_status(threadObj(), java_lang_Thread::TERMINATED);
+     *
+     *     java_lang_Thread::set_thread(threadObj(), NULL);
+     *
+     *     //thread就是当前线程，就是刚才说的thread1线程。
+     *     lock.notify_all(thread);
+     *
+     *     thread->clear_pending_exception();
+     * }
+     *
      */
     public final void join() throws InterruptedException {
         join(0);
@@ -1731,6 +1754,7 @@ class Thread implements Runnable {
      *
      * @since   1.5
      * @see #getState
+     * todo 线程的生命周期   新建 就绪 阻塞 等待 时间等待 消亡
      */
     public enum State {
         /**

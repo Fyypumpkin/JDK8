@@ -23,13 +23,28 @@
  *
  */
 
-package java.util;
+package a_learn.a_java.util;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.AbstractCollection;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Set;
+import java.util.Spliterator;
+import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -283,7 +298,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
      * Basic hash bin node, used for most entries.  (See below for
      * TreeNode subclass, and in LinkedHashMap for its Entry subclass.)
      */
-    static class Node<K, V> implements Map.Entry<K, V> {
+    static class Node<K, V> implements Entry<K, V> {
         final int hash;
         final K key;
         V value;
@@ -322,7 +337,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
             if (o == this)
                 return true;
             if (o instanceof Map.Entry) {
-                Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+                Entry<?, ?> e = (Entry<?, ?>) o;
                 if (Objects.equals(key, e.getKey()) &&
                         Objects.equals(value, e.getValue()))
                     return true;
@@ -352,7 +367,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
     static final int hash(Object key) {
         // todo https://www.zhihu.com/question/20733617
         int h;
-        // todo 高半区和低半区做异或
+        // todo 高半区和低半区做异或，是的高低位都参与计算，降低碰撞概率 （null 的 hashcode == 0）
         return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
     }
 
@@ -420,7 +435,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
      * Holds cached entrySet(). Note that AbstractMap fields are used
      * for keySet() and values().
      */
-    transient Set<Map.Entry<K, V>> entrySet;
+    transient Set<Entry<K, V>> entrySet;
 
     /**
      * The number of key-value mappings contained in this map.
@@ -529,7 +544,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                     threshold = tableSizeFor(t);
             } else if (s > threshold)
                 resize();
-            for (Map.Entry<? extends K, ? extends V> e : m.entrySet()) {
+            for (Entry<? extends K, ? extends V> e : m.entrySet()) {
                 K key = e.getKey();
                 V value = e.getValue();
                 putVal(hash(key), key, value, false, evict);
@@ -653,7 +668,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
         int n, i;
         // todo 如果没有初始化过 table == null 或者 length == 0
         if ((tab = table) == null || (n = tab.length) == 0)
-            // todo 初始化
+            // todo 初始化, resize 包含初始化和扩容
             n = (tab = resize()).length;
         if ((p = tab[i = (n - 1) & hash]) == null)
             // todo 当前不存在，就直接放
@@ -1076,12 +1091,12 @@ public class HashMap<K, V> extends AbstractMap<K, V>
      *
      * @return a set view of the mappings contained in this map
      */
-    public Set<Map.Entry<K, V>> entrySet() {
-        Set<Map.Entry<K, V>> es;
+    public Set<Entry<K, V>> entrySet() {
+        Set<Entry<K, V>> es;
         return (es = entrySet) == null ? (entrySet = new EntrySet()) : es;
     }
 
-    final class EntrySet extends AbstractSet<Map.Entry<K, V>> {
+    final class EntrySet extends AbstractSet<Entry<K, V>> {
         public final int size() {
             return size;
         }
@@ -1090,14 +1105,14 @@ public class HashMap<K, V> extends AbstractMap<K, V>
             HashMap.this.clear();
         }
 
-        public final Iterator<Map.Entry<K, V>> iterator() {
+        public final Iterator<Entry<K, V>> iterator() {
             return new EntryIterator();
         }
 
         public final boolean contains(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
-            Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+            Entry<?, ?> e = (Entry<?, ?>) o;
             Object key = e.getKey();
             Node<K, V> candidate = getNode(hash(key), key);
             return candidate != null && candidate.equals(e);
@@ -1105,7 +1120,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
 
         public final boolean remove(Object o) {
             if (o instanceof Map.Entry) {
-                Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+                Entry<?, ?> e = (Entry<?, ?>) o;
                 Object key = e.getKey();
                 Object value = e.getValue();
                 return removeNode(hash(key), key, value, true, true) != null;
@@ -1113,11 +1128,11 @@ public class HashMap<K, V> extends AbstractMap<K, V>
             return false;
         }
 
-        public final Spliterator<Map.Entry<K, V>> spliterator() {
+        public final Spliterator<Entry<K, V>> spliterator() {
             return new EntrySpliterator<>(HashMap.this, 0, -1, 0, 0);
         }
 
-        public final void forEach(Consumer<? super Map.Entry<K, V>> action) {
+        public final void forEach(Consumer<? super Entry<K, V>> action) {
             Node<K, V>[] tab;
             if (action == null)
                 throw new NullPointerException();
@@ -1567,8 +1582,8 @@ public class HashMap<K, V> extends AbstractMap<K, V>
     }
 
     final class EntryIterator extends HashIterator
-            implements Iterator<Map.Entry<K, V>> {
-        public final Map.Entry<K, V> next() {
+            implements Iterator<Entry<K, V>> {
+        public final Entry<K, V> next() {
             return nextNode();
         }
     }
@@ -1755,7 +1770,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
 
     static final class EntrySpliterator<K, V>
             extends HashMapSpliterator<K, V>
-            implements Spliterator<Map.Entry<K, V>> {
+            implements Spliterator<Entry<K, V>> {
         EntrySpliterator(HashMap<K, V> m, int origin, int fence, int est,
                          int expectedModCount) {
             super(m, origin, fence, est, expectedModCount);
@@ -1768,7 +1783,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                             expectedModCount);
         }
 
-        public void forEachRemaining(Consumer<? super Map.Entry<K, V>> action) {
+        public void forEachRemaining(Consumer<? super Entry<K, V>> action) {
             int i, hi, mc;
             if (action == null)
                 throw new NullPointerException();
@@ -1796,7 +1811,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
             }
         }
 
-        public boolean tryAdvance(Consumer<? super Map.Entry<K, V>> action) {
+        public boolean tryAdvance(Consumer<? super Entry<K, V>> action) {
             int hi;
             if (action == null)
                 throw new NullPointerException();

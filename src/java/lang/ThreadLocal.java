@@ -93,6 +93,7 @@ public class ThreadLocal<T> {
     /**
      * The next hash code to be given out. Updated atomically. Starts at
      * zero.
+     * todo hashcode
      */
     private static AtomicInteger nextHashCode =
         new AtomicInteger();
@@ -101,11 +102,13 @@ public class ThreadLocal<T> {
      * The difference between successively generated hash codes - turns
      * implicit sequential thread-local IDs into near-optimally spread
      * multiplicative hash values for power-of-two-sized tables.
+     * todo 计算 hashcode 的增量
      */
     private static final int HASH_INCREMENT = 0x61c88647;
 
     /**
      * Returns the next hash code.
+     * todo 获取 hashcode
      */
     private static int nextHashCode() {
         return nextHashCode.getAndAdd(HASH_INCREMENT);
@@ -349,6 +352,7 @@ public class ThreadLocal<T> {
 
         /**
          * Set the resize threshold to maintain at worst a 2/3 load factor.
+         * todo 相当于负载因子是 2/3
          */
         private void setThreshold(int len) {
             threshold = len * 2 / 3;
@@ -375,6 +379,7 @@ public class ThreadLocal<T> {
          */
         ThreadLocalMap(ThreadLocal<?> firstKey, Object firstValue) {
             table = new Entry[INITIAL_CAPACITY];
+            // todo 通过 hashcode 计算下标
             int i = firstKey.threadLocalHashCode & (INITIAL_CAPACITY - 1);
             table[i] = new Entry(firstKey, firstValue);
             size = 1;
@@ -401,8 +406,10 @@ public class ThreadLocal<T> {
                     if (key != null) {
                         Object value = key.childValue(e.value);
                         Entry c = new Entry(key, value);
+                        // todo 计算槽位
                         int h = key.threadLocalHashCode & (len - 1);
                         while (table[h] != null)
+                            // todo 线性探测
                             h = nextIndex(h, len);
                         table[h] = c;
                         size++;
@@ -424,6 +431,7 @@ public class ThreadLocal<T> {
         private Entry getEntry(ThreadLocal<?> key) {
             int i = key.threadLocalHashCode & (table.length - 1);
             Entry e = table[i];
+            // todo 如果获取的 Entry 节点不为 null 并且 key 相等
             if (e != null && e.get() == key)
                 return e;
             else
@@ -445,11 +453,14 @@ public class ThreadLocal<T> {
 
             while (e != null) {
                 ThreadLocal<?> k = e.get();
+                // todo key 相等，直接返回
                 if (k == key)
                     return e;
+                // todo key 等于 null，执行清理
                 if (k == null)
                     expungeStaleEntry(i);
                 else
+                    // todo hash 碰撞了，线性探测
                     i = nextIndex(i, len);
                 e = tab[i];
             }
@@ -495,7 +506,7 @@ public class ThreadLocal<T> {
 
             tab[i] = new Entry(key, value);
             int sz = ++size;
-            // todo 每次 set 完毕后都会进行判断是否到达阈值，需要重新扩容，不然上面的 for 循环可能出现死循环
+            // todo 每次 set 完毕后都会进行判断是否到达阈值，需要重新扩容，重新扩容过程中会伴随全量的清理
             if (!cleanSomeSlots(i, sz) && sz >= threshold)
                 rehash();
         }
@@ -519,7 +530,7 @@ public class ThreadLocal<T> {
         }
 
         /**
-         * Replace a stale entry encountered during a set operation
+         * Replace a stale entry encountered（遇到） during a set operation
          * with an entry for the specified key.  The value passed in
          * the value parameter is stored in the entry, whether or not
          * an entry already exists for the specified key.
@@ -545,6 +556,7 @@ public class ThreadLocal<T> {
             // up refs in bunches (i.e., whenever the collector runs).
             // todo staleSlot 是下标
             int slotToExpunge = staleSlot;
+            // todo 从 staleSlot ，找到最前面的一个无效的 slot。
             for (int i = prevIndex(staleSlot, len);
                  (e = tab[i]) != null;
                  i = prevIndex(i, len))
@@ -554,6 +566,8 @@ public class ThreadLocal<T> {
 
             // Find either the key or trailing null slot of run, whichever
             // occurs first
+            // todo 外部传进来的 staleSlot 为 null，所以找到线性探测后的 index，然后交换一下，
+            // todo 如果没找到，就新建一个，并把当前 staleSlot 之前的 value 设置为 null，方便垃圾清理
             for (int i = nextIndex(staleSlot, len);
                  (e = tab[i]) != null;
                  i = nextIndex(i, len)) {
@@ -573,6 +587,7 @@ public class ThreadLocal<T> {
                     // Start expunge at preceding stale entry if it exists
                     if (slotToExpunge == staleSlot)
                         slotToExpunge = i;
+                    // todo 两段清理
                     cleanSomeSlots(expungeStaleEntry(slotToExpunge), len);
                     return;
                 }
@@ -584,7 +599,7 @@ public class ThreadLocal<T> {
                     slotToExpunge = i;
             }
 
-            // If key not found, put new entry in stale slot
+            // nIf key not foud, put new entry in stale slot
             tab[staleSlot].value = null;
             tab[staleSlot] = new Entry(key, value);
 
@@ -604,12 +619,14 @@ public class ThreadLocal<T> {
          * (all between staleSlot and this slot will have been checked
          * for expunging).
          * // todo 擦除 null 方便垃圾回收，防止内存泄露，由于只会有一个线程，所以是安全的
+         * // todo 从 staleSlot 开始清理
          */
         private int expungeStaleEntry(int staleSlot) {
             Entry[] tab = table;
             int len = tab.length;
 
             // expunge entry at staleSlot
+            // todo 把 staleSlot 位置的清理掉
             tab[staleSlot].value = null;
             tab[staleSlot] = null;
             size--;
@@ -617,10 +634,10 @@ public class ThreadLocal<T> {
             // Rehash until we encounter null
             Entry e;
             int i;
-            for (i = nextIndex(staleSlot, len);
-                 (e = tab[i]) != null;
-                 i = nextIndex(i, len)) {
+//            todo 从staleSlot 下一个槽位开始
+            for (i = nextIndex(staleSlot, len); (e = tab[i]) != null; i = nextIndex(i, len)) {
                 ThreadLocal<?> k = e.get();
+
                 if (k == null) {
                     e.value = null;
                     tab[i] = null;
@@ -631,6 +648,7 @@ public class ThreadLocal<T> {
                     // todo h 和 i 不相等说明有 hash 碰撞
                     if (h != i) {
                         // todo i 是当前下标，h 是计算下标，i 设置为 null，下一轮就会回收 value
+                        // todo 将当前元素重新计算位置
                         tab[i] = null;
 
                         // Unlike Knuth 6.4 Algorithm R, we must scan until
@@ -640,7 +658,9 @@ public class ThreadLocal<T> {
                         tab[h] = e;
                     }
                 }
+
             }
+            // todo 返回 staleSlot 之后第一个空的 slot 索引
             return i;
         }
 
@@ -675,6 +695,7 @@ public class ThreadLocal<T> {
             do {
                 i = nextIndex(i, len);
                 Entry e = tab[i];
+                // todo 弱引用数据被垃圾清理了
                 if (e != null && e.get() == null) {
                     n = len;
                     removed = true;
@@ -699,6 +720,7 @@ public class ThreadLocal<T> {
 
         /**
          * Double the capacity of the table.
+         * todo resize 过程也会将一些失效的 key 的 value 设置为空，方便 gc
          */
         private void resize() {
             Entry[] oldTab = table;
@@ -730,6 +752,7 @@ public class ThreadLocal<T> {
 
         /**
          * Expunge all stale entries in the table.
+         * todo 清理整个 map
          */
         private void expungeStaleEntries() {
             Entry[] tab = table;

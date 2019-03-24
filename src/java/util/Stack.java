@@ -44,9 +44,9 @@ package java.util;
  *
  * @author  Jonathan Payne
  * @since   JDK1.0
+ * todo 线程安全的， Stack 直接继承了 Vector
  */
-public
-class Stack<E> extends Vector<E> {
+public class Stack<E> extends Vector<E> {
     /**
      * Creates an empty Stack.
      */

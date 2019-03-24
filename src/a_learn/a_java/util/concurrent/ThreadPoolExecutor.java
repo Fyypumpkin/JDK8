@@ -1,17 +1,42 @@
 /*
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 
+/*
+ *
+ *
+ *
+ *
+ *
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-package java.util.concurrent;
-import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+package a_java.util.concurrent;
+
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 import java.util.concurrent.locks.Condition;
@@ -358,15 +383,15 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     private static final int CAPACITY   = (1 << COUNT_BITS) - 1;
 
     // runState is stored in the high-order bits
-    //todo RUNNING状态可以接受新进来的任务，同时也会执行队列里的任务。
+    //todo RUNNING 状态可以接受新进来的任务，同时也会执行队列里的任务。
     //
-    //SHUTDOWN 状态已经不会再接受新任务，但仍旧会处理队列中的任务。
+    //todo SHUTDOWN 状态已经不会再接受新任务，但仍旧会处理队列中的任务。
     //
-    //STOP状态在之前的基础上，不会处理队列中的人物，在执行的任务也会直接被打断。
+    //todo STOP 状态在之前的基础上，不会处理队列中的人物，在执行的任务也会直接被打断。
     //
-    //TIDYING状态在之前的基础上，所有任务都已经终止，池中的Worker线程都已经为0，也就是stop状态在清理完所有工作线程之后就会进入该状态，同时在shutdown状态在队列空以及工作线程清理完毕之后也会直接进入这个阶段，这一阶段会循环执行terminated()方法。
+    //todo TIDYING 状态在之前的基础上，所有任务都已经终止，池中的Worker线程都已经为0，也就是stop状态在清理完所有工作线程之后就会进入该状态，同时在shutdown状态在队列空以及工作线程清理完毕之后也会直接进入这个阶段，这一阶段会循环执行terminated()方法。
     //
-    //TERMINATED 状态作为最后的状态，在之前的基础上terminated()方法也业已执行完毕，才会从上个状态进入这个状态，代表线程池已经完全停止。
+    //todo TERMINATED 状态作为最后的状态，在之前的基础上terminated()方法也业已执行完毕，才会从上个状态进入这个状态，代表线程池已经完全停止。
     private static final int RUNNING    = -1 << COUNT_BITS;
     private static final int SHUTDOWN   =  0 << COUNT_BITS;
     private static final int STOP       =  1 << COUNT_BITS;
@@ -450,7 +475,6 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * Set containing all worker threads in pool. Accessed only when
      * holding mainLock.
      */
-    // todo 线程存放的集合
     private final HashSet<Worker> workers = new HashSet<Worker>();
 
     /**
@@ -531,6 +555,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
 
     /**
      * The default rejected execution handler
+     * todo 默认的拒绝策略是拒绝策略
      */
     private static final RejectedExecutionHandler defaultHandler =
         new AbortPolicy();
@@ -607,7 +632,6 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         }
 
         /** Delegates main run loop to outer runWorker  */
-        @Override
         public void run() {
             runWorker(this);
         }
@@ -946,7 +970,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
                     // shut down before lock acquired.
                     int rs = runStateOf(ctl.get());
 
-                    // todo 如果状态是 < SHUTDOWN （运行状态） 的或者状态已经是 SHUTDOWN，但是队列中还有未处理完的任务，于是就新建一个线程来处理
+                    // todo 如果状态是 < SHUTDOWN 的或者状态已经是 SHUTDOWN，但是队列中还有未处理完的任务，于是就新建一个线程来处理
                     if (rs < SHUTDOWN ||
                         (rs == SHUTDOWN && firstTask == null)) {
                         if (t.isAlive()) // precheck that t is startable
@@ -1892,11 +1916,9 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
             long n = completedTaskCount;
             for (Worker w : workers) {
                 n += w.completedTasks;
-                // todo 如果还未执行结束，需要加 1
                 if (w.isLocked())
                     ++n;
             }
-            // 返回 n + 工作队列的长度 = 所有任务数
             return n + workQueue.size();
         } finally {
             mainLock.unlock();

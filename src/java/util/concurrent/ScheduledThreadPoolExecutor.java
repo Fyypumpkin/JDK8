@@ -181,9 +181,11 @@ public class ScheduledThreadPoolExecutor
             extends FutureTask<V> implements RunnableScheduledFuture<V> {
 
         /** Sequence number to break ties FIFO */
+        // todo 如果入队列的时候，延时是一样的，那么通过这个值来确定谁先入队
         private final long sequenceNumber;
 
         /** The time the task is enabled to execute in nanoTime units */
+        // todo 任务触发时间
         private long time;
 
         /**
@@ -192,14 +194,17 @@ public class ScheduledThreadPoolExecutor
          * indicates fixed-delay execution.  A value of 0 indicates a
          * non-repeating task.
          */
+        // todo 任务触发周期
         private final long period;
 
         /** The actual task to be re-enqueued by reExecutePeriodic */
+        // todo 首次执行后，再次入队的任务
         RunnableScheduledFuture<V> outerTask = this;
 
         /**
          * Index into delay queue, to support faster cancellation.
          */
+        // todo 入队位置索引
         int heapIndex;
 
         /**
@@ -232,6 +237,7 @@ public class ScheduledThreadPoolExecutor
             this.sequenceNumber = sequencer.getAndIncrement();
         }
 
+        // todo 获取剩余的延迟时间
         public long getDelay(TimeUnit unit) {
             return unit.convert(time - now(), NANOSECONDS);
         }
@@ -276,9 +282,9 @@ public class ScheduledThreadPoolExecutor
         }
 
         public boolean cancel(boolean mayInterruptIfRunning) {
-            boolean cancelled = super.cancel(mayInterruptIfRunning);
+            boolean cancelled = super.cancel(mayInterruptIfRunning); // todo 调用 FutureTask 的 cancel
             if (cancelled && removeOnCancel && heapIndex >= 0)
-                remove(this);
+                remove(this); // todo 在调用 ThreadPoolExecutor 的 remove
             return cancelled;
         }
 
@@ -287,12 +293,17 @@ public class ScheduledThreadPoolExecutor
          */
         public void run() {
             boolean periodic = isPeriodic();
+            // todo 当前环境时候能运行任务
             if (!canRunInCurrentRunState(periodic))
                 cancel(false);
+            // todo 非周期任务
             else if (!periodic)
                 ScheduledFutureTask.super.run();
+            // todo 周期任务，直接调用先执行一次
             else if (ScheduledFutureTask.super.runAndReset()) {
+                // todo 设置下次执行时间
                 setNextRunTime();
+                // todo 重新执行周期性任务
                 reExecutePeriodic(outerTask);
             }
         }
@@ -347,6 +358,7 @@ public class ScheduledThreadPoolExecutor
             if (!canRunInCurrentRunState(true) && remove(task))
                 task.cancel(false);
             else
+                // todo 确保有线程能够运行
                 ensurePrestart();
         }
     }
@@ -425,6 +437,7 @@ public class ScheduledThreadPoolExecutor
      * @param corePoolSize the number of threads to keep in the pool, even
      *        if they are idle, unless {@code allowCoreThreadTimeOut} is set
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
+     * todo 构造器中的 keepAliveTime 都为 0，maxPoolSize 都为最大值，因为延迟队列是会自己扩容的
      */
     public ScheduledThreadPoolExecutor(int corePoolSize) {
         super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS,
@@ -554,6 +567,7 @@ public class ScheduledThreadPoolExecutor
      * @throws RejectedExecutionException {@inheritDoc}
      * @throws NullPointerException       {@inheritDoc}
      * @throws IllegalArgumentException   {@inheritDoc}
+     * todo 创建一个周期性的任务，第一次执行是延迟initialDelay，后面的是initialDelay+n*period
      */
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
                                                   long initialDelay,
@@ -578,6 +592,7 @@ public class ScheduledThreadPoolExecutor
      * @throws RejectedExecutionException {@inheritDoc}
      * @throws NullPointerException       {@inheritDoc}
      * @throws IllegalArgumentException   {@inheritDoc}
+     * todo 创建一个周期性的任务，第一次执行是延迟initialDelay，后面的是延迟时间是前一次任务执行完的时间+period
      */
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
                                                      long initialDelay,

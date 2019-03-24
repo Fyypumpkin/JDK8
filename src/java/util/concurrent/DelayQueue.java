@@ -71,6 +71,7 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E>
     implements BlockingQueue<E> {
 
     private final transient ReentrantLock lock = new ReentrantLock();
+    // todo 内部选用了优先队列
     private final PriorityQueue<E> q = new PriorityQueue<E>();
 
     /**
@@ -137,7 +138,9 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E>
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
+//            todo 通过调用优先队列的 offer 方法
             q.offer(e);
+            // todo 如果放进去的就在第一个位置，直接唤醒相应的线程
             if (q.peek() == e) {
                 leader = null;
                 available.signal();
@@ -185,6 +188,7 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E>
         lock.lock();
         try {
             E first = q.peek();
+            // todo 如果 first 是空的，或者延时 > 0，就返回 null
             if (first == null || first.getDelay(NANOSECONDS) > 0)
                 return null;
             else
@@ -207,19 +211,25 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E>
         try {
             for (;;) {
                 E first = q.peek();
+                // todo 如果当前 peek 出来是空的，就阻塞
                 if (first == null)
                     available.await();
                 else {
+                    // todo 获取延迟
                     long delay = first.getDelay(NANOSECONDS);
+                    // todo 延时小于等于 0 就 poll 出来
                     if (delay <= 0)
                         return q.poll();
                     first = null; // don't retain ref while waiting
+                    // todo 如果有线程就等待
                     if (leader != null)
                         available.await();
                     else {
+                        // todo 将 leader 设置为当前线程
                         Thread thisThread = Thread.currentThread();
                         leader = thisThread;
                         try {
+                            // todo 等待 delay 时间，然后如果 leader == 当前线程，就设置为 null
                             available.awaitNanos(delay);
                         } finally {
                             if (leader == thisThread)

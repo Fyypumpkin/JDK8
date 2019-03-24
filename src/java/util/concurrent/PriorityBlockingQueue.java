@@ -324,15 +324,16 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         if (n < 0)
             return null;
         else {
+            // todo 获取第一个元素，将最后一个元素放到第一个然后调整至平衡
             Object[] array = queue;
             E result = (E) array[0];
-            E x = (E) array[n];
+            E last = (E) array[n];
             array[n] = null;
             Comparator<? super E> cmp = comparator;
             if (cmp == null)
-                siftDownComparable(0, x, array, n);
+                siftDownComparable(0, last, array, n);
             else
-                siftDownUsingComparator(0, x, array, n, cmp);
+                siftDownUsingComparator(0, last, array, n, cmp);
             size = n;
             return result;
         }
@@ -353,13 +354,16 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
      * @param x the item to insert
      * @param array the heap array
      */
+    // todo 往上升
     private static <T> void siftUpComparable(int k, T x, Object[] array) {
         Comparable<? super T> key = (Comparable<? super T>) x;
         while (k > 0) {
             int parent = (k - 1) >>> 1;
             Object e = array[parent];
+            // todo 小顶堆，如果 key 已经比父节点大了，就直接 break
             if (key.compareTo((T) e) >= 0)
                 break;
+            // todo 父节点往后移
             array[k] = e;
             k = parent;
         }
@@ -388,24 +392,30 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
      * @param x the item to insert
      * @param array the heap array
      * @param n heap size
+     * (0, last, array, n) todo 小顶堆
      */
     private static <T> void siftDownComparable(int k, T x, Object[] array,
                                                int n) {
         if (n > 0) {
             Comparable<? super T> key = (Comparable<? super T>)x;
-            int half = n >>> 1;           // loop while a non-leaf
+            int half = n >>> 1;           // loop while a non-leaf todo n / 2
             while (k < half) {
-                int child = (k << 1) + 1; // assume left child is least
+                int child = (k << 1) + 1; // assume left child is least todo parent * 2 + 1 (left node)
+                // todo left
                 Object c = array[child];
                 int right = child + 1;
+                // todo 选择叶子节点中小的
                 if (right < n &&
                     ((Comparable<? super T>) c).compareTo((T) array[right]) > 0)
                     c = array[child = right];
+                // todo 如果 key 已经比 child 中小的要小了，退出循环
                 if (key.compareTo((T) c) <= 0)
                     break;
+//                todo 否则就将 k 位置赋值成 c
                 array[k] = c;
                 k = child;
             }
+//            todo k 位置赋值
             array[k] = key;
         }
     }
@@ -534,6 +544,7 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
+            // todo 弹出元素，小顶堆第一个元素
             return dequeue();
         } finally {
             lock.unlock();

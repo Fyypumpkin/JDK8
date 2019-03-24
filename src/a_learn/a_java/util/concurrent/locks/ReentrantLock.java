@@ -33,9 +33,10 @@
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-package java.util.concurrent.locks;
-import java.util.concurrent.TimeUnit;
+package a_java.util.concurrent.locks;
+
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A reentrant mutual exclusion {@link Lock} with the same basic
@@ -142,10 +143,12 @@ public class ReentrantLock implements Lock, java.io.Serializable {
             }
             // todo 当前线程所状态不是 0 ，就检查当前线程是否已经有锁了
             else if (current == getExclusiveOwnerThread()) {
-                // todo 已经有锁， 重入，状态 + 1
+                // todo 已经有锁， 重入，状态 + acquires
                 int nextc = c + acquires;
+                // todo 小于零说明溢出了
                 if (nextc < 0) // overflow
                     throw new Error("Maximum lock count exceeded");
+                // todo 为什么这里不需要 cas 操作 ？？？？  因为已经确定是同一个线程，不存在资源竞争
                 setState(nextc);
                 return true;
             }
@@ -243,7 +246,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
             final Thread current = Thread.currentThread();
             int c = getState();
             if (c == 0) {
-                // 检查前置等待
+                // todo 检查前置等待
                 if (!hasQueuedPredecessors() &&
                     compareAndSetState(0, acquires)) {
                     setExclusiveOwnerThread(current);

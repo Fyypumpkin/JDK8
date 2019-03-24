@@ -33,12 +33,14 @@
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-package java.util.concurrent.locks;
-import java.util.concurrent.TimeUnit;
+package a_java.util.concurrent.locks;
+
+import sun.misc.Unsafe;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import sun.misc.Unsafe;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Provides a framework for implementing blocking locks and related
@@ -392,6 +394,7 @@ public abstract class AbstractQueuedSynchronizer
         /**
          * waitStatus value to indicate the next acquireShared should
          * unconditionally propagate
+         * todo 和共享模式的锁有关，标识可运行状态
          */
         static final int PROPAGATE = -3;
 
@@ -701,6 +704,7 @@ public abstract class AbstractQueuedSynchronizer
             if (h != null && h != tail) {
                 int ws = h.waitStatus;
                 if (ws == Node.SIGNAL) {
+//                    todo 主要关注这一行代码，如果节点状态是 SIGNAL （说明后续节点需要被唤醒）
                     if (!compareAndSetWaitStatus(h, Node.SIGNAL, 0))
                         continue;            // loop to recheck cases
                     unparkSuccessor(h);
@@ -743,6 +747,7 @@ public abstract class AbstractQueuedSynchronizer
          */
         if (propagate > 0 || h == null || h.waitStatus < 0 ||
             (h = head) == null || h.waitStatus < 0) {
+//            todo 如果后继节点是 shared 的，就会进入 doReleaseShared 方法
             Node s = node.next;
             if (s == null || s.isShared())
                 doReleaseShared();
@@ -765,6 +770,7 @@ public abstract class AbstractQueuedSynchronizer
 
         // Skip cancelled predecessors
         Node pred = node.prev;
+//      todo 跳过 cancel 的节点
         while (pred.waitStatus > 0)
             node.prev = pred = pred.prev;
 
@@ -819,7 +825,7 @@ public abstract class AbstractQueuedSynchronizer
              */
             return true;
 
-//         todo   ws > 0 表示状态时 CANCELED，通过循环将当前节点之前所有取消状态的节点移出队列；
+        // todo   ws > 0 表示状态时 CANCELED，通过循环将当前节点之前所有取消状态的节点移出队列；
         if (ws > 0) {
             /*
              * Predecessor was cancelled. Skip over predecessors and
@@ -830,7 +836,7 @@ public abstract class AbstractQueuedSynchronizer
             } while (pred.waitStatus > 0);
             pred.next = node;
 
-            // 前节点是其他状态，当前节点设置为 SIGNAL
+            // todo 前节点是其他状态，当前节点设置为 SIGNAL
         } else {
             /*
              * waitStatus must be 0 or PROPAGATE.  Indicate that we
@@ -876,7 +882,7 @@ public abstract class AbstractQueuedSynchronizer
      * @param node the node
      * @param arg the acquire argument
      * @return {@code true} if interrupted while waiting
-     * todo head -> thread1 -> thread2
+     * todo head -> thread2 -> thread3
      *
      * todo 对于Thread2来说，它的prev指向HEAD，因此会首先再尝试获取锁一次，如果失败，则会将HEAD的waitStatus值为SIGNAL，下次循环的时候再去尝试获取锁，
      * todo 如果还是失败，且这个时候prev节点的waitStatus已经是SIGNAL，则这个时候线程会被通过LockSupport挂起。
@@ -983,6 +989,7 @@ public abstract class AbstractQueuedSynchronizer
      * @param arg the acquire argument
      */
     private void doAcquireShared(int arg) {
+//        todo 新建一个节点，mode、 = Node.SHARED
         final Node node = addWaiter(Node.SHARED);
         boolean failed = true;
         try {
@@ -994,6 +1001,7 @@ public abstract class AbstractQueuedSynchronizer
                     int r = tryAcquireShared(arg);
                     // todo 获取成功
                     if (r >= 0) {
+//                        todo 这里获取锁成功后，因为共享，会同时唤醒后续再等待的线程 (链式唤醒后续所有共享的节点)
                         setHeadAndPropagate(node, r);
                         p.next = null; // help GC
                         if (interrupted)
@@ -1034,6 +1042,7 @@ public abstract class AbstractQueuedSynchronizer
                 }
                 if (shouldParkAfterFailedAcquire(p, node) &&
                     parkAndCheckInterrupt())
+//                    todo 这里和非相应中断的不同
                     throw new InterruptedException();
             }
         } finally {
@@ -1303,7 +1312,7 @@ public abstract class AbstractQueuedSynchronizer
         if (tryRelease(arg)) {
             Node h = head;
 
-            // todo 如果队列的头不为 null 并且 waitStatus ！= 0 （实际上就是等于 SIGNAL，表明后面有现成在等待，需要唤醒）
+            // todo 如果队列的头不为 null 并且 waitStatus ！= 0 （实际上就是等于 SIGNAL，表明后面有线程在等待，需要唤醒）
             if (h != null && h.waitStatus != 0)
                 unparkSuccessor(h);
             return true;
@@ -1384,6 +1393,7 @@ public abstract class AbstractQueuedSynchronizer
      */
     public final boolean releaseShared(int arg) {
         if (tryReleaseShared(arg)) {
+//            todo 释放锁的时候，唤醒后续等待节点
             doReleaseShared();
             return true;
         }
@@ -1571,6 +1581,7 @@ public abstract class AbstractQueuedSynchronizer
         // The correctness of this depends on head being initialized
         // before tail and on head.next being accurate if the current
         // thread is first in queue.
+//        todo 用于判断当前线程是否是下一个可以获取锁的线程
         Node t = tail; // Read fields in reverse initialization order
         Node h = head;
         Node s;
@@ -1687,7 +1698,7 @@ public abstract class AbstractQueuedSynchronizer
      * @return true if is reacquiring
      */
     final boolean isOnSyncQueue(Node node) {
-        // 如果当前状态是CONDITION或者前驱是null的表示不再AQS上，如果有后继节点，那么一定在AQS上，否则就去遍历
+        // todo 如果当前状态是 CONDITION 或者前驱是 null 的表示不再AQS上，如果有后继节点 next （Condition 中使用的是 nextWaiter ），那么一定在AQS上，否则就去遍历
         if (node.waitStatus == Node.CONDITION || node.prev == null)
             return false;
         if (node.next != null) // If has successor, it must be on queue
@@ -1730,7 +1741,7 @@ public abstract class AbstractQueuedSynchronizer
         /*
          * If cannot change waitStatus, the node has been cancelled.
          */
-        // 这里会做值的变更，将CONDITION状态变更为0，变更成功后即将放入AQS队列
+        //todo  这里会做值的变更，将CONDITION状态变更为0，变更成功后即将放入AQS队列
         if (!compareAndSetWaitStatus(node, Node.CONDITION, 0))
             return false;
 
@@ -1742,7 +1753,7 @@ public abstract class AbstractQueuedSynchronizer
          */
         Node p = enq(node);
         int ws = p.waitStatus;
-        //如果结点p的状态为cancel 或者修改waitStatus失败，则直接唤醒,正常情况下应该是不会唤醒的
+        //todo 如果结点p的状态为cancel 或者修改waitStatus失败，则直接唤醒,正常情况下应该是不会唤醒的
         if (ws > 0 || !compareAndSetWaitStatus(p, ws, Node.SIGNAL))
             LockSupport.unpark(node.thread);
         return true;
@@ -1788,6 +1799,7 @@ public abstract class AbstractQueuedSynchronizer
                 throw new IllegalMonitorStateException();
             }
         } finally {
+//            todo 释放失败，node 的状态会变成 cancelled
             if (failed)
                 node.waitStatus = Node.CANCELLED;
         }
@@ -1906,12 +1918,14 @@ public abstract class AbstractQueuedSynchronizer
          * Adds a new waiter to wait queue.
          * @return its new wait node
          */
-        // 将新建的 node 加入到队尾
+        // todo 将新建的 node 加入到队尾
+//        todo 单向队列 firstWaiter -> nextWaiter ... -> lastWaiter
         private Node addConditionWaiter() {
             Node t = lastWaiter;
             // If lastWaiter is cancelled, clean out.
-            // 只可能是CANCELLED和CONDITION
+            // todo 只可能是 CANCELLED 和 CONDITION
             if (t != null && t.waitStatus != Node.CONDITION) {
+//                todo 清除 Condition 队列中状态为 cancel 的
                 unlinkCancelledWaiters();
                 t = lastWaiter;
             }
@@ -1967,7 +1981,7 @@ public abstract class AbstractQueuedSynchronizer
          * without requiring many re-traversals during cancellation
          * storms.
          */
-        // 清楚Condition队列中状态时CANCELLED的（Condition队列中应该只会有两种状态， condition和cancelled）
+        // todo 清除 Condition 队列中状态时 CANCELLED 的（ Condition 队列中应该只会有两种状态， condition 和 cancelled）
         private void unlinkCancelledWaiters() {
             Node t = firstWaiter;
             Node trail = null;
@@ -1999,6 +2013,7 @@ public abstract class AbstractQueuedSynchronizer
          *         returns {@code false}
          */
         public final void signal() {
+//            todo 独占模式下才能使用条件
             if (!isHeldExclusively())
                 throw new IllegalMonitorStateException();
             Node first = firstWaiter;
@@ -2096,18 +2111,20 @@ public abstract class AbstractQueuedSynchronizer
         public final void await() throws InterruptedException {
             if (Thread.interrupted())
                 throw new InterruptedException();
-            // 使用当前线程构造一个 Node，并加到队尾
+            // todo 使用当前线程构造一个 Node，并加到队尾
             Node node = addConditionWaiter();
-            // 需要考虑重入的情况，会释放所有重入的锁
+            // todo 需要考虑重入的情况，会释放所有重入的锁
             int savedState = fullyRelease(node);
             int interruptMode = 0;
 
-            // 判断当前线程是否在等待队列中，如果不在，就阻塞等待
+            // todo 判断当前线程是否在等待队列中，如果不在，就阻塞等待
             while (!isOnSyncQueue(node)) {
                 LockSupport.park(this);
                 if ((interruptMode = checkInterruptWhileWaiting(node)) != 0)
                     break;
             }
+
+//            todo 加入到 AQS 队列中
             if (acquireQueued(node, savedState) && interruptMode != THROW_IE)
                 interruptMode = REINTERRUPT;
             if (node.nextWaiter != null) // clean up if cancelled

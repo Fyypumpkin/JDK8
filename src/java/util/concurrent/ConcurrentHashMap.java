@@ -507,12 +507,14 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * bounds for power of two table sizes, and is further required
      * because the top two bits of 32bit hash fields are used for
      * control purposes.
+     * todo 最大容量
      */
     private static final int MAXIMUM_CAPACITY = 1 << 30;
 
     /**
      * The default initial table capacity.  Must be a power of 2
      * (i.e., at least 1) and at most MAXIMUM_CAPACITY.
+     * todo 默认的容量 1<<4
      */
     private static final int DEFAULT_CAPACITY = 16;
 
@@ -534,6 +536,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * actual floating point value isn't normally used -- it is
      * simpler to use expressions such as {@code n - (n >>> 2)} for
      * the associated resizing threshold.
+     * todo 负载因子
      */
     private static final float LOAD_FACTOR = 0.75f;
 
@@ -791,6 +794,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * when table is null, holds the initial table size to use upon
      * creation, or 0 for default. After initialization, holds the
      * next element count value upon which to resize the table.
+     * todo -1 标识正在初始化
+     * todo -N 标识有 N-1 个线程在扩容
      */
     private transient volatile int sizeCtl;
 
@@ -2653,6 +2658,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
     /* ---------------- TreeNodes -------------- */
 
     /**
+     * todo 相比 HashMap，这里单独抽出来了一层 TreeBin 作为工具类
      * Nodes for use in TreeBins
      */
     static final class TreeNode<K,V> extends Node<K,V> {
@@ -2709,7 +2715,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
     /* ---------------- TreeBins -------------- */
 
     /**
-     * TreeNodes used at the heads of bins. TreeBins do not hold user
+     * TreeNodes used at the heads of bins.t the heads of bins TreeBins do not hold user
      * keys or values, but instead point to list of TreeNodes and
      * their root. They also maintain a parasitic read-write lock
      * forcing writers (who hold bin lock) to wait for readers (who do

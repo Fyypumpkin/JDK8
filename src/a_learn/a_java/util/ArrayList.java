@@ -23,8 +23,23 @@
  *
  */
 
-package java.util;
+package a_learn.a_java.util;
 
+import java.util.AbstractList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.RandomAccess;
+import java.util.Spliterator;
+import java.util.Vector;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -111,11 +126,13 @@ public class ArrayList<E> extends AbstractList<E>
     /**
      * Default initial capacity.
      */
+    // todo 默认的大小
     private static final int DEFAULT_CAPACITY = 10;
 
     /**
      * Shared empty array instance used for empty instances.
      */
+    // todo 这个空数组用于构造器中传入初始容量 = 0
     private static final Object[] EMPTY_ELEMENTDATA = {};
 
     /**
@@ -123,6 +140,7 @@ public class ArrayList<E> extends AbstractList<E>
      * distinguish this from EMPTY_ELEMENTDATA to know how much to inflate when
      * first element is added.
      */
+//   todo  这个数组用于默认构造器，（会使用默认的容量 10）
     private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
 
     /**
@@ -220,6 +238,7 @@ public class ArrayList<E> extends AbstractList<E>
     }
 
     private void ensureCapacityInternal(int minCapacity) {
+        // todo 这里就会使用到，当构造器不传和传 0 处理方式是不一样的
         if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
             minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
         }
@@ -231,6 +250,7 @@ public class ArrayList<E> extends AbstractList<E>
         modCount++;
 
         // overflow-conscious code
+        // todo 如果 minCap 大于当前的长度，就需要扩容
         if (minCapacity - elementData.length > 0)
             grow(minCapacity);
     }
@@ -251,13 +271,17 @@ public class ArrayList<E> extends AbstractList<E>
      */
     private void grow(int minCapacity) {
         // overflow-conscious code
+//        todo 记录老的长度
         int oldCapacity = elementData.length;
+//        todo newCapacity = 1.5 * oldCapacity
         int newCapacity = oldCapacity + (oldCapacity >> 1);
         if (newCapacity - minCapacity < 0)
             newCapacity = minCapacity;
+//        todo 如果大于 MAX_ARRAY_SIZE （Integer.MAX - 8）,就会使用 Integer.MAX
         if (newCapacity - MAX_ARRAY_SIZE > 0)
             newCapacity = hugeCapacity(minCapacity);
         // minCapacity is usually close to size, so this is a win:
+        // todo 调用 copy 函数
         elementData = Arrays.copyOf(elementData, newCapacity);
     }
 
@@ -308,11 +332,13 @@ public class ArrayList<E> extends AbstractList<E>
      * or -1 if there is no such index.
      */
     public int indexOf(Object o) {
+        // todo null 要单独处理
         if (o == null) {
             for (int i = 0; i < size; i++)
                 if (elementData[i]==null)
                     return i;
         } else {
+            // todo 调用 equals 寻找第一个匹配的并返回
             for (int i = 0; i < size; i++)
                 if (o.equals(elementData[i]))
                     return i;
@@ -328,6 +354,7 @@ public class ArrayList<E> extends AbstractList<E>
      * or -1 if there is no such index.
      */
     public int lastIndexOf(Object o) {
+//        todo 同 IndexOf(), 只不过从后往前搜索
         if (o == null) {
             for (int i = size-1; i >= 0; i--)
                 if (elementData[i]==null)
@@ -373,6 +400,7 @@ public class ArrayList<E> extends AbstractList<E>
      *         proper sequence
      */
     public Object[] toArray() {
+//        todo 返回一个新的数组
         return Arrays.copyOf(elementData, size);
     }
 
@@ -402,9 +430,11 @@ public class ArrayList<E> extends AbstractList<E>
      */
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
+//        todo 如果传进来的数组长度太小，就会使用新建一个数组
         if (a.length < size)
             // Make a new array of a's runtime type, but my contents:
             return (T[]) Arrays.copyOf(elementData, size, a.getClass());
+//        todo 长度够，就在传进来的数组上赋值
         System.arraycopy(elementData, 0, a, 0, size);
         if (a.length > size)
             a[size] = null;
@@ -415,6 +445,7 @@ public class ArrayList<E> extends AbstractList<E>
 
     @SuppressWarnings("unchecked")
     E elementData(int index) {
+//        todo 直接返回数组的第 index 个元素，不会改变 modCount 状态
         return (E) elementData[index];
     }
 
@@ -427,7 +458,6 @@ public class ArrayList<E> extends AbstractList<E>
      */
     public E get(int index) {
         rangeCheck(index);
-
         return elementData(index);
     }
 
@@ -442,7 +472,7 @@ public class ArrayList<E> extends AbstractList<E>
      */
     public E set(int index, E element) {
         rangeCheck(index);
-
+//        todo 对数组制定下表的元素重新赋值，返回老元素，不会改变迭代器 modCount 状态
         E oldValue = elementData(index);
         elementData[index] = element;
         return oldValue;
@@ -455,6 +485,7 @@ public class ArrayList<E> extends AbstractList<E>
      * @return <tt>true</tt> (as specified by {@link Collection#add})
      */
     public boolean add(E e) {
+//        todo 确保容量，不足就扩容并且会增加 modCount，在迭代过程中，不允许 add 操作
         ensureCapacityInternal(size + 1);  // Increments modCount!!
         elementData[size++] = e;
         return true;
@@ -470,9 +501,11 @@ public class ArrayList<E> extends AbstractList<E>
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     public void add(int index, E element) {
+//        todo 确保 index 合法
         rangeCheckForAdd(index);
 
         ensureCapacityInternal(size + 1);  // Increments modCount!!
+//        todo 调用 arrayCopy 方法法复制 index 后面的元素向后移动一位
         System.arraycopy(elementData, index, elementData, index + 1,
                          size - index);
         elementData[index] = element;
@@ -493,7 +526,7 @@ public class ArrayList<E> extends AbstractList<E>
 
         modCount++;
         E oldValue = elementData(index);
-
+//        todo 计算需要移动的元素个数
         int numMoved = size - index - 1;
         if (numMoved > 0)
             System.arraycopy(elementData, index+1, elementData, index,
@@ -517,6 +550,7 @@ public class ArrayList<E> extends AbstractList<E>
      * @return <tt>true</tt> if this list contained the specified element
      */
     public boolean remove(Object o) {
+//        todo null 要特殊处理
         if (o == null) {
             for (int index = 0; index < size; index++)
                 if (elementData[index] == null) {
@@ -537,6 +571,7 @@ public class ArrayList<E> extends AbstractList<E>
      * Private remove method that skips bounds checking and does not
      * return the value removed.
      */
+//    todo 和 remove(index) 功能一样
     private void fastRemove(int index) {
         modCount++;
         int numMoved = size - index - 1;
@@ -551,6 +586,7 @@ public class ArrayList<E> extends AbstractList<E>
      * be empty after this call returns.
      */
     public void clear() {
+//      todo 清空所有元素，并且 size = 0；
         modCount++;
 
         // clear to let GC do its work
@@ -577,6 +613,7 @@ public class ArrayList<E> extends AbstractList<E>
         Object[] a = c.toArray();
         int numNew = a.length;
         ensureCapacityInternal(size + numNew);  // Increments modCount
+//        todo 吧 c 里面的元素复制到 elementData 之后
         System.arraycopy(a, 0, elementData, size, numNew);
         size += numNew;
         return numNew != 0;
@@ -649,6 +686,7 @@ public class ArrayList<E> extends AbstractList<E>
      * which throws an ArrayIndexOutOfBoundsException if index is negative.
      */
     private void rangeCheck(int index) {
+//         todo 判断一下 index 是否 > size
         if (index >= size)
             throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
     }
@@ -838,8 +876,11 @@ public class ArrayList<E> extends AbstractList<E>
      * An optimized version of AbstractList.Itr
      */
     private class Itr implements Iterator<E> {
+//        todo 下一次要访问的指针
         int cursor;       // index of next element to return
+//        todo 最后被访问的元素下标（在 remove 的时候，必须先被访问过才能 remove）
         int lastRet = -1; // index of last element returned; -1 if no such
+//        todo modCount，在使用迭代器过程中，该值的改变会导致异常
         int expectedModCount = modCount;
 
         public boolean hasNext() {
@@ -852,6 +893,7 @@ public class ArrayList<E> extends AbstractList<E>
             int i = cursor;
             if (i >= size)
                 throw new NoSuchElementException();
+//            todo 引用外部的 elementData， elementData 不是 volatile 的
             Object[] elementData = ArrayList.this.elementData;
             if (i >= elementData.length)
                 throw new ConcurrentModificationException();
@@ -866,6 +908,7 @@ public class ArrayList<E> extends AbstractList<E>
             checkForComodification();
 
             try {
+//                todo 通过持有的外部引用调用外部的 remove 方法，移除后，继续讲 lastRet 设置为 -1
                 ArrayList.this.remove(lastRet);
                 cursor = lastRet;
                 lastRet = -1;
@@ -878,6 +921,7 @@ public class ArrayList<E> extends AbstractList<E>
         @Override
         @SuppressWarnings("unchecked")
         public void forEachRemaining(Consumer<? super E> consumer) {
+//            todo 这是一个遍历的方法，会从 cursor 位置开始不断调用 consumer
             Objects.requireNonNull(consumer);
             final int size = ArrayList.this.size;
             int i = cursor;
@@ -1101,14 +1145,14 @@ public class ArrayList<E> extends AbstractList<E>
                 int expectedModCount = ArrayList.this.modCount;
 
                 public boolean hasNext() {
-                    return cursor != SubList.this.size;
+                    return cursor != ArrayList.SubList.this.size;
                 }
 
                 @SuppressWarnings("unchecked")
                 public E next() {
                     checkForComodification();
                     int i = cursor;
-                    if (i >= SubList.this.size)
+                    if (i >= ArrayList.SubList.this.size)
                         throw new NoSuchElementException();
                     Object[] elementData = ArrayList.this.elementData;
                     if (offset + i >= elementData.length)
@@ -1137,7 +1181,7 @@ public class ArrayList<E> extends AbstractList<E>
                 @SuppressWarnings("unchecked")
                 public void forEachRemaining(Consumer<? super E> consumer) {
                     Objects.requireNonNull(consumer);
-                    final int size = SubList.this.size;
+                    final int size = ArrayList.SubList.this.size;
                     int i = cursor;
                     if (i >= size) {
                         return;
@@ -1168,7 +1212,7 @@ public class ArrayList<E> extends AbstractList<E>
                     checkForComodification();
 
                     try {
-                        SubList.this.remove(lastRet);
+                        ArrayList.SubList.this.remove(lastRet);
                         cursor = lastRet;
                         lastRet = -1;
                         expectedModCount = ArrayList.this.modCount;
@@ -1194,7 +1238,7 @@ public class ArrayList<E> extends AbstractList<E>
 
                     try {
                         int i = cursor;
-                        SubList.this.add(i, e);
+                        ArrayList.SubList.this.add(i, e);
                         cursor = i + 1;
                         lastRet = -1;
                         expectedModCount = ArrayList.this.modCount;
@@ -1278,40 +1322,10 @@ public class ArrayList<E> extends AbstractList<E>
     /** Index-based split-by-two, lazily initialized Spliterator */
     static final class ArrayListSpliterator<E> implements Spliterator<E> {
 
-        /*
-         * If ArrayLists were immutable, or structurally immutable (no
-         * adds, removes, etc), we could implement their spliterators
-         * with Arrays.spliterator. Instead we detect as much
-         * interference during traversal as practical without
-         * sacrificing much performance. We rely primarily on
-         * modCounts. These are not guaranteed to detect concurrency
-         * violations, and are sometimes overly conservative about
-         * within-thread interference, but detect enough problems to
-         * be worthwhile in practice. To carry this out, we (1) lazily
-         * initialize fence and expectedModCount until the latest
-         * point that we need to commit to the state we are checking
-         * against; thus improving precision.  (This doesn't apply to
-         * SubLists, that create spliterators with current non-lazy
-         * values).  (2) We perform only a single
-         * ConcurrentModificationException check at the end of forEach
-         * (the most performance-sensitive method). When using forEach
-         * (as opposed to iterators), we can normally only detect
-         * interference after actions, not before. Further
-         * CME-triggering checks apply to all other possible
-         * violations of assumptions for example null or too-small
-         * elementData array given its size(), that could only have
-         * occurred due to interference.  This allows the inner loop
-         * of forEach to run without any further checks, and
-         * simplifies lambda-resolution. While this does entail a
-         * number of checks, note that in the common case of
-         * list.stream().forEach(a), no checks or other computation
-         * occur anywhere other than inside forEach itself.  The other
-         * less-often-used methods cannot take advantage of most of
-         * these streamlinings.
-         */
-
         private final ArrayList<E> list;
+        // todo 起始下标
         private int index; // current index, modified on advance/split
+//        todo 结束下标 （如果值小于 0，则会在使用的时候，用 list 的 size 来填充）
         private int fence; // -1 until used; then one past last index
         private int expectedModCount; // initialized when fence set
 
@@ -1327,7 +1341,9 @@ public class ArrayList<E> extends AbstractList<E>
         private int getFence() { // initialize fence to size on first use
             int hi; // (a specialized variant appears in method forEach)
             ArrayList<E> lst;
+//            todo 初始化 fence ，-1 的时候会使用 list 的 size 来填充
             if ((hi = fence) < 0) {
+//                todo 当前 fence 小于 0， 如果 list 是空的，返回 0，否则返回 list 的 size
                 if ((lst = list) == null)
                     hi = fence = 0;
                 else {
@@ -1339,7 +1355,13 @@ public class ArrayList<E> extends AbstractList<E>
         }
 
         public ArrayListSpliterator<E> trySplit() {
+//            todo hi == fence， lo == index， mid = （lo + hi） / 2
             int hi = getFence(), lo = index, mid = (lo + hi) >>> 1;
+//            todo 如果 lo >= mid，说明待拆分的 list 太小了，返回 null （这里要注意空指针）,这里可以看出来，他是向前拆分的，怎么说呢，我画一个图
+//            todo split1 = 1 2 3 4 5 6 7 8 9
+//            todo split2 = split1.trySplit()
+//            todo split1 = 5 6 7 8 9 [4 - 9)
+//            todo aplit2 = 1 2 3 4 [0 - 4)
             return (lo >= mid) ? null : // divide range in half unless too small
                 new ArrayListSpliterator<E>(list, lo, index = mid,
                                             expectedModCount);
@@ -1350,7 +1372,9 @@ public class ArrayList<E> extends AbstractList<E>
                 throw new NullPointerException();
             int hi = getFence(), i = index;
             if (i < hi) {
+//                todo 起始下标 +1
                 index = i + 1;
+//                todo 返回起始下标的元素，调用 Consumer
                 @SuppressWarnings("unchecked") E e = (E)list.elementData[i];
                 action.accept(e);
                 if (list.modCount != expectedModCount)
