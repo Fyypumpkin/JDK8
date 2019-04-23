@@ -627,7 +627,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
             setState(-1); // inhibit interrupts until runWorker
             this.firstTask = firstTask;
 
-            // todo Worker 中的 thread 会包装当前 Worker
+            // todo Worker 中的 thread 会包装当前 Worker （这里会将线程设置为非守护线程，jvm 规定，只有所有非守护线程结束才能结束，所以线程池启动后不会退出）
             this.thread = getThreadFactory().newThread(this);
         }
 
