@@ -411,7 +411,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
      * Returns a power of two size for the given target capacity.
      */
     static final int tableSizeFor(int cap) {
-        // todo 找出比 cap 小与等于的最大的 2 的幂次方
+        // todo 找出比 cap 大的最小2次幂
         int n = cap - 1;
         n |= n >>> 1;
         n |= n >>> 2;
@@ -782,14 +782,17 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                             next = e.next;
                             // todo inedx = e.hash & (oldCap - 1)
                             // todo e.hash & oldCap 主要查看最高位是 0 还是 1
+                            // todo 判断key的hash值与老数组长度与操作后结果决定元素是放在原索引处还是新索引
                             // todo https://blog.csdn.net/u013494765/article/details/77837338
                             if ((e.hash & oldCap) == 0) {
+                                // todo 放在老的槽位
                                 if (loTail == null)
                                     loHead = e;
                                 else
                                     loTail.next = e;
                                 loTail = e;
                             } else {
+                                // todo 放在新的槽位
                                 if (hiTail == null)
                                     hiHead = e;
                                 else
