@@ -1213,7 +1213,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
             }
             completedAbruptly = false;
         } finally {
-            // todo 执行到 finally 说明 while 已经退出，要么 task == null，要么队列中没有任务
+            // todo 执行到 finally 说明 while 已经退出，要么 task == null，要么队列中没有任务或者报错了
             processWorkerExit(w, completedAbruptly);
         }
     }

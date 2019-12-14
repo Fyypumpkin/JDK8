@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e26e0f3d-8700-4acf-bb23-43ffb51ead45" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/a_learn/a_java/util/HashMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/a_learn/a_java/util/HashMap.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -13,32 +13,19 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/a_learn/a_java/util/concurrent/locks/ReentrantLock.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2130">
-              <caret line="177" column="30" selection-start-line="177" selection-start-column="30" selection-end-line="177" selection-end-column="30" />
-              <folding>
-                <element signature="e#5887#5888#0" expanded="true" />
-                <element signature="e#5939#5940#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/a_learn/a_java/util/concurrent/LinkedBlockingQueue.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="705">
+            <state>
               <caret line="91" column="13" selection-start-line="91" selection-start-column="13" selection-end-line="91" selection-end-column="13" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/a_learn/a_java/util/concurrent/ThreadPoolExecutor.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="12975">
-              <caret line="921" column="20" selection-start-line="921" selection-start-column="20" selection-end-line="921" selection-end-column="20" />
+            <state relative-caret-position="625">
+              <caret line="1205" column="29" selection-start-line="1205" selection-start-column="29" selection-end-line="1205" selection-end-column="29" />
             </state>
           </provider>
         </entry>
@@ -89,11 +76,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/a_learn/a_java/util/HashMap.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="576">
-              <caret line="772" column="58" lean-forward="true" selection-start-line="772" selection-start-column="58" selection-end-line="772" selection-end-column="58" />
+            <state relative-caret-position="521">
+              <caret line="785" column="59" lean-forward="true" selection-start-line="785" selection-start-column="59" selection-end-line="785" selection-end-column="59" />
             </state>
           </provider>
         </entry>
@@ -458,14 +445,14 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="257180000" />
+    <option name="totallyTimeSpent" value="257654000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="45" y="23" width="1635" height="1027" extended-state="1" />
+    <frame x="45" y="23" width="1635" height="1027" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.44812834" visible="true" weight="0.19397363" />
-      <window_info id="Structure" order="1" sideWeight="0.55187166" side_tool="true" visible="true" weight="0.19397363" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.44864225" visible="true" weight="0.19397363" />
+      <window_info id="Structure" order="1" sideWeight="0.55135775" side_tool="true" visible="true" weight="0.19397363" />
       <window_info id="Designer" order="2" />
       <window_info id="Favorites" order="3" side_tool="true" />
       <window_info id="Image Layers" order="4" />
@@ -478,7 +465,7 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Terminal" order="7" weight="0.31084338" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.09411765" />
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info anchor="bottom" id="Docker" order="10" show_stripe_button="false" />
@@ -581,46 +568,46 @@
         <state relative-caret-position="5134">
           <caret line="348" column="22" selection-start-line="348" selection-start-column="22" selection-end-line="348" selection-end-column="22" />
           <folding>
-            <element signature="e#0#48084#0" expanded="false" />
-            <element signature="imports" expanded="false" />
-            <element signature="e#6479#6480#0" expanded="false" />
-            <element signature="e#6519#6520#0" expanded="false" />
-            <element signature="e#8561#8562#0" expanded="false" />
-            <element signature="e#8631#8632#0" expanded="false" />
-            <element signature="e#9562#9563#0" expanded="false" />
-            <element signature="e#9604#9605#0" expanded="false" />
-            <element signature="e#18620#18621#0" expanded="false" />
-            <element signature="e#18693#18694#0" expanded="false" />
-            <element signature="e#24399#24400#0" expanded="false" />
-            <element signature="e#24452#24453#0" expanded="false" />
-            <element signature="e#24902#24903#0" expanded="false" />
-            <element signature="e#24955#24956#0" expanded="false" />
-            <element signature="e#28013#28014#0" expanded="false" />
-            <element signature="e#28051#28052#0" expanded="false" />
-            <element signature="e#28458#28459#0" expanded="false" />
-            <element signature="e#28495#28496#0" expanded="false" />
-            <element signature="e#29338#29339#0" expanded="false" />
-            <element signature="e#29370#29371#0" expanded="false" />
-            <element signature="e#30406#30407#0" expanded="false" />
-            <element signature="e#30448#30449#0" expanded="false" />
-            <element signature="e#30963#30964#0" expanded="false" />
-            <element signature="e#31002#31003#0" expanded="false" />
-            <element signature="e#38051#38052#0" expanded="false" />
-            <element signature="e#38093#38094#0" expanded="false" />
-            <element signature="e#38135#38136#0" expanded="false" />
-            <element signature="e#38183#38184#0" expanded="false" />
-            <element signature="e#39305#39306#0" expanded="false" />
-            <element signature="e#39337#39338#0" expanded="false" />
-            <element signature="e#39379#39380#0" expanded="false" />
-            <element signature="e#39418#39419#0" expanded="false" />
-            <element signature="e#39491#39492#0" expanded="false" />
-            <element signature="e#39530#39531#0" expanded="false" />
-            <element signature="e#46986#46987#0" expanded="false" />
-            <element signature="e#47052#47053#0" expanded="false" />
-            <element signature="e#47458#47459#0" expanded="false" />
-            <element signature="e#47508#47509#0" expanded="false" />
-            <element signature="e#47548#47549#0" expanded="false" />
-            <element signature="e#47608#47609#0" expanded="false" />
+            <element signature="e#0#48084#0" />
+            <element signature="imports" />
+            <element signature="e#6479#6480#0" />
+            <element signature="e#6519#6520#0" />
+            <element signature="e#8561#8562#0" />
+            <element signature="e#8631#8632#0" />
+            <element signature="e#9562#9563#0" />
+            <element signature="e#9604#9605#0" />
+            <element signature="e#18620#18621#0" />
+            <element signature="e#18693#18694#0" />
+            <element signature="e#24399#24400#0" />
+            <element signature="e#24452#24453#0" />
+            <element signature="e#24902#24903#0" />
+            <element signature="e#24955#24956#0" />
+            <element signature="e#28013#28014#0" />
+            <element signature="e#28051#28052#0" />
+            <element signature="e#28458#28459#0" />
+            <element signature="e#28495#28496#0" />
+            <element signature="e#29338#29339#0" />
+            <element signature="e#29370#29371#0" />
+            <element signature="e#30406#30407#0" />
+            <element signature="e#30448#30449#0" />
+            <element signature="e#30963#30964#0" />
+            <element signature="e#31002#31003#0" />
+            <element signature="e#38051#38052#0" />
+            <element signature="e#38093#38094#0" />
+            <element signature="e#38135#38136#0" />
+            <element signature="e#38183#38184#0" />
+            <element signature="e#39305#39306#0" />
+            <element signature="e#39337#39338#0" />
+            <element signature="e#39379#39380#0" />
+            <element signature="e#39418#39419#0" />
+            <element signature="e#39491#39492#0" />
+            <element signature="e#39530#39531#0" />
+            <element signature="e#46986#46987#0" />
+            <element signature="e#47052#47053#0" />
+            <element signature="e#47458#47459#0" />
+            <element signature="e#47508#47509#0" />
+            <element signature="e#47548#47549#0" />
+            <element signature="e#47608#47609#0" />
           </folding>
         </state>
       </provider>
@@ -707,15 +694,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/a_learn/a_java/util/concurrent/LinkedBlockingQueue.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="705">
+        <state>
           <caret line="91" column="13" selection-start-line="91" selection-start-column="13" selection-end-line="91" selection-end-column="13" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/a_learn/a_java/util/concurrent/ThreadPoolExecutor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="12975">
-          <caret line="921" column="20" selection-start-line="921" selection-start-column="20" selection-end-line="921" selection-end-column="20" />
+        <state relative-caret-position="625">
+          <caret line="1205" column="29" selection-start-line="1205" selection-start-column="29" selection-end-line="1205" selection-end-column="29" />
         </state>
       </provider>
     </entry>
@@ -781,8 +768,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/a_learn/a_java/util/HashMap.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="576">
-          <caret line="772" column="58" lean-forward="true" selection-start-line="772" selection-start-column="58" selection-end-line="772" selection-end-column="58" />
+        <state relative-caret-position="521">
+          <caret line="785" column="59" lean-forward="true" selection-start-line="785" selection-start-column="59" selection-end-line="785" selection-end-column="59" />
         </state>
       </provider>
     </entry>
