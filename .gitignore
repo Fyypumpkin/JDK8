@@ -20,6 +20,7 @@
 */reports
 #Mac-specific directory that no other operating system needs.
 .DS_Store
+.idea/*
 
 #Scala-play project files
 logs
